@@ -1,10 +1,19 @@
 require('dotenv').config();
 const express = require("express")
+const session = require("express-session");
 const bodyParser = require('body-parser')
 
 
 const server =express();
 const logger =require('morgan')
+
+server.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false,maxAge:60000 }
+  }));
+
 
 
 server.use(express.static(process.env.STATIC_FOLDER))
@@ -16,6 +25,11 @@ server.use((req,res,next)=>{
     next();
 })
 server.use(logger());
+
+server.get('/test',(req,res)=>{
+    res.session.test? res.session.test++ :res.session.test = 1;
+    res.send(req.session.test.toString())
+  })
 
 server.get('/home',(req,res) => {
     res.json({"name":"good evening"})
